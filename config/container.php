@@ -20,7 +20,28 @@ return [
         return $app;
     },
     DatabaseManager::class => function (ContainerInterface $container) {
-        $config = $container->get("settings")["db"];
+         $db = $container->get("settings")["db"];
+         $config = [
+            "default" => "default",
+            "databases" => [
+                "default" => [
+                    "connection" => "mysql"
+                ]
+            ],
+            "connections" => [
+                'mysql' => new Cycle\Database\Config\MySQLDriverConfig(
+                    connection: new Cycle\Database\Config\MySQL\TcpConnectionConfig(
+                        database: $db["db_name"],
+                        host: $db["host"],
+                        port: $db["port"],
+                        user: $db["username"],
+                        password: $db["password"],
+                    ),
+                    queryCache: true
+                ),
+            ]
+        ];
+
         return new DatabaseManager(new DatabaseConfig($config));
     },
     DatabaseInterface::class => function (ContainerInterface $container) {
