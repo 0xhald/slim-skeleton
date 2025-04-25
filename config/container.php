@@ -1,5 +1,10 @@
 <?php
 
+use App\Database\Transaction;
+use App\Database\TransactionInterface;
+use Cycle\Database\Config\DatabaseConfig;
+use Cycle\Database\DatabaseInterface;
+use Cycle\Database\DatabaseManager;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use DI\Bridge\Slim\Bridge;
@@ -13,5 +18,22 @@ return [
         // Register middleware
         (require __DIR__ . "/middleware.php")($app);
         return $app;
+    },
+    DatabaseManager::class => function (ContainerInterface $container) {
+        $config = $container->get("settings")["db"];
+        return new DatabaseManager(new DatabaseConfig($config));
+    },
+    DatabaseInterface::class => function (ContainerInterface $container) {
+        return $container->get(DatabaseManager::class)->database("default");
+    },
+    PDO::class => function (ContainerInterface $container) {
+        $driver = $container->get(DatabaseManager::class)->driver("default");
+        $class = new ReflectionClass($driver);
+        $method = $class->getMethod("getPDO");
+        $method->setAccessible(true);
+        return $method->invoke($driver);
+    },
+    TransactionInterface::class => function (ContainerInterface $container) {
+        return $container->get(Transaction::class);
     }
 ];
