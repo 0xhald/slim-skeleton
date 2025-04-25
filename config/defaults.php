@@ -34,4 +34,10 @@ $settings['logger'] = [
     'level' => \Psr\Log\LogLevel::DEBUG,
 ];
 
+// Comands
+$settings['commands'] = [
+    \App\Console\ExampleCommand::class,
+    // Add more here...
+];
+
 return $settings;

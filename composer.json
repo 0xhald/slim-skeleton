@@ -5,7 +5,8 @@
         "nyholm/psr7-server": "^1.1",
         "php-di/php-di": "^7.0",
         "php-di/slim-bridge": "^3.4",
-        "cycle/database": "^2.13"
+        "cycle/database": "^2.13",
+        "symfony/console": "^7.2"
     },
     "autoload": {
         "psr-4": {

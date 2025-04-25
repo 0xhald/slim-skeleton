@@ -8,6 +8,8 @@ use Cycle\Database\DatabaseManager;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use DI\Bridge\Slim\Bridge;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputOption;
 
 return [
     "settings" => fn() => require __DIR__ . "/settings.php",
@@ -18,6 +20,18 @@ return [
         // Register middleware
         (require __DIR__ . "/middleware.php")($app);
         return $app;
+    },
+    Application::class => function (ContainerInterface $container) {
+        $application = new Application();
+        $application->getDefinition()->addOption(
+            new InputOption('--env', '-e', InputOption::VALUE_REQUIRED, 'The environment name.', 'dev')
+        );
+
+        foreach ($container->get('settings')['commands'] as $class) {
+            $application->add($container->get($class));
+        }
+        
+        return $application;
     },
     DatabaseManager::class => function (ContainerInterface $container) {
          $db = $container->get("settings")["db"];
