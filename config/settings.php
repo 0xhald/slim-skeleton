@@ -1,9 +1,28 @@
 <?php
-// Set to 0 in production
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 
-// Settings
-$settings = [];
+// Detect environment
+$_ENV['APP_ENV'] ??= $_SERVER['APP_ENV'] ?? 'dev';
+$_ENV['APP_DEBUG'] ??= $_SERVER['APP_DEBUG'] ?? true;
+
+// Load default settings
+$settings = require __DIR__ . '/defaults.php';
+
+// Overwrite default settings with environment specific local settings
+$configFiles = [
+    __DIR__ . sprintf('/local.%s.php', $_ENV['APP_ENV']),
+    __DIR__ . '/env.php',
+    __DIR__ . '/../../env.php',
+];
+
+foreach ($configFiles as $configFile) {
+    if (!file_exists($configFile)) {
+        continue;
+    }
+
+    $local = require $configFile;
+    if (is_callable($local)) {
+        $settings = $local($settings);
+    }
+}
 
 return $settings;
