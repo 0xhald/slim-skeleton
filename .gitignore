@@ -10,3 +10,5 @@ public/.env
 env.php
 local.*.php
 !local.example.php
+
+/logs/
