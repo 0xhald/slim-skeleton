@@ -2,15 +2,15 @@
 
 namespace App\Domain\User\Repository;
 
-use Vendor\Database\Connection;
+use Cycle\Database\DatabaseInterface;
 
 final class UserCreatorRepository
 {
-    private Connection $connection;
+    private DatabaseInterface $database;
 
-    public function __construct(Connection $connection)
+    public function __construct(DatabaseInterface $database)
     {
-        $this->connection = $connection;
+        $this->database = $database;
     }
 
     public function insertUser (array $user): int
@@ -22,13 +22,6 @@ final class UserCreatorRepository
             "email" => $user["email"],
         ];
 
-        $sql = "INSERT INTO users SET
-                username = :username,
-                first_name = :first_name,
-                last_name = :last_name,
-                email = :email;";
-        
-        $this->connection->prepare($sql)->execute($row);
-        return (int) $this->connection->lastInsertId();
+        return (int) $this->database->insert('users')->values($row)->run();
     }
 }
