@@ -1,6 +1,9 @@
 <?php
 
+use App\Middleware\ErrorHandlerMiddleware;
 use Slim\App;
+use Slim\Middleware\ErrorMiddleware;
+use Tuupola\Middleware\CorsMiddleware;
 
 return function (App $app) {
     // Parse json, form data and xml
@@ -8,5 +11,6 @@ return function (App $app) {
     // Add Slim built-in routing middleware
     $app->addRoutingMiddleware();
     // Handle exceptions
-    $app->addErrorMiddleware(displayErrorDetails: true, logErrors: true, logErrorDetails: true);
+    $app->add(ErrorMiddleware::class);
+    $app->add(CorsMiddleware::class);
 };
