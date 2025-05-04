@@ -1,6 +1,6 @@
 <?php
 
-use App\Middleware\ErrorHandlerMiddleware;
+use App\Middleware\JwtClaimMiddleware;
 use Slim\App;
 use Slim\Middleware\ErrorMiddleware;
 use Tuupola\Middleware\CorsMiddleware;
@@ -10,6 +10,7 @@ return function (App $app) {
     $app->addBodyParsingMiddleware();
     // Add Slim built-in routing middleware
     $app->addRoutingMiddleware();
+    $app->add(JwtClaimMiddleware::class);
     // Handle exceptions
     $app->add(ErrorMiddleware::class);
     $app->add(CorsMiddleware::class);

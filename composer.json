@@ -8,7 +8,11 @@
         "cycle/database": "^2.13",
         "symfony/console": "^7.2",
         "tuupola/cors-middleware": "^1.5",
-        "monolog/monolog": "^3.9"
+        "monolog/monolog": "^3.9",
+        "lcobucci/jwt": "^5.5",
+        "lcobucci/clock": "^3.3",
+        "symfony/uid": "^7.2",
+        "cakephp/chronos": "^3.1"
     },
     "autoload": {
         "psr-4": {

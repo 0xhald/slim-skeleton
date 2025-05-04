@@ -2,13 +2,16 @@
 
 use App\Database\Transaction;
 use App\Database\TransactionInterface;
-use App\Support\Logger\LoggerFactoryInterface;
+use App\Security\JwtAuth;
 use Cycle\Database\Config\DatabaseConfig;
 use Cycle\Database\DatabaseInterface;
 use Cycle\Database\DatabaseManager;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use DI\Bridge\Slim\Bridge;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
@@ -34,6 +37,9 @@ return [
         // Register middleware
         (require __DIR__ . "/middleware.php")($app);
         return $app;
+    },
+    ResponseFactoryInterface::class => function (ContainerInterface $container) {
+        return $container->get(Psr17Factory::class);
     },
     ErrorMiddleware::class => function (ContainerInterface $container) {
         $app = $container->get(App::class);
@@ -146,4 +152,25 @@ return [
             'credentials' => (bool)$settings['credentials']
         ]);
     },
+    Configuration::class => function (ContainerInterface $container) {
+        $settings = $container->get("settings")["jwt"];
+        $privateKey = (string) $settings["private_key"];
+        $publicKey = (string) $settings["public_key"];
+
+        // Asymmetric algorithms use a private key for signature creation
+        // and a public key for verification
+        return Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::plainText($privateKey),
+            InMemory::plainText($publicKey)
+        );
+    },
+    JwtAuth::class => function (ContainerInterface $container) {
+        $configuration = $container->get(Configuration::class);
+        $settings = $container->get("settings")["jwt"];
+        $issuer = $settings["issuer"];
+        $lifetime = $settings["lifetime"];
+        return new JwtAuth($configuration, $issuer, $lifetime);
+    }
+
 ];
